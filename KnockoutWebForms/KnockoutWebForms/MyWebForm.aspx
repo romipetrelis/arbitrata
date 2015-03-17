@@ -8,6 +8,12 @@
     <script type="text/javascript" src="Scripts/knockout-3.3.0.js"></script>
     <script type="text/javascript">
 
+        function ObservableSuperhero(data) {
+            this.Name = ko.observable(data.Name);
+            this.AlterEgo = ko.observable(data.AlterEgo);
+            this.IsCaped = ko.observable(data.IsCaped);
+        }
+
         function JsViewModel() {
             var self = this;
 
@@ -26,7 +32,7 @@
                     dataType: "json",
                     success: function (data) {
                         var results = $.map(data.d, function (item) {
-                            return item;
+                            return new ObservableSuperhero(item);
                         });
                         self.superheroes(results);
                     },
