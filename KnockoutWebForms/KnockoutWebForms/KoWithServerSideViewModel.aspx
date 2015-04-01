@@ -31,34 +31,50 @@
         <div data-bind="visible: SelectedAddressType() == 'existing'">
             <select data-bind="options: AvailableAddresses, optionsText: 'DisplayText', optionsCaption: 'Choose an address', value: SelectedAddress"></select>
         </div>
+        
+        <button id="saveButton" OnServerClick="OnSaveButtonClick" runat="server">Save</button>
+
+        <input type="hidden" id="jsonFromClient" name="jsonFromClient" data-bind="value: JsonForServer" runat="server"/>
     </div>
         <script>
             var AddressModel = function(data) {
-                ko.mapping.fromJS(data, {}, this);
+                    ko.mapping.fromJS(data, {}, this);
 
-                this.DisplayText = ko.computed(function() {
-                    return this.Line1() + " " + this.City() + ", " + this.State() + " " + this.PostalCode();
-                }, this);
-            },
-            StateProvinceModel = function(data) {
-                ko.mapping.fromJS(data, {}, this);
+                    this.DisplayText = ko.computed(function() {
+                        return this.Line1() + " " + this.City() + ", " + this.State() + " " + this.PostalCode();
+                    }, this);
+                },
+                StateProvinceModel = function(data) {
+                    ko.mapping.fromJS(data, {}, this);
 
-                this.DisplayText = ko.computed(function() {
-                    return this.Abbreviation() + " - " + this.FullName();
-                }, this);
-            };
+                    this.DisplayText = ko.computed(function() {
+                        return this.Abbreviation() + " - " + this.FullName();
+                    }, this);
+                };
 
             $(function () {
                 var mapping = {
-                    'AvailableStates': {
-                        create: function(options) {
-                            return new StateProvinceModel(options.data);
-                        }
-                    },
-                    'AvailableAddresses': {
-                        create: function(options) {
-                            return new AddressModel(options.data);
-                        }
+                    create: function(options) {
+                        var childMappings = {
+                            'AvailableStates': {
+                                create: function(stateOptions) {
+                                    return new StateProvinceModel(stateOptions.data);
+                                }
+                            },
+                            'AvailableAddresses': {
+                                create: function(addressOptions) {
+                                    return new AddressModel(addressOptions.data);
+                                }
+                            }
+                        };
+
+                        var rootModel = ko.mapping.fromJS(options.data, childMappings);
+                        
+                        rootModel.JsonForServer = ko.computed(function() {
+                            return ko.mapping.toJSON(this, {ignore:["AvailableAddresses", "AvailableStates"]});
+                        }, rootModel);
+
+                        return rootModel;
                     }
                 };
                 var vm = ko.mapping.fromJS(<%=Model.ToJson()%>, mapping);

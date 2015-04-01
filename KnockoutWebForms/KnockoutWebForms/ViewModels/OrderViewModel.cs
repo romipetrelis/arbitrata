@@ -11,7 +11,7 @@ namespace KnockoutWebForms.ViewModels
         private readonly IAddressService _addressService;
 
         public IReadOnlyCollection<AddressModel> AvailableAddresses { get; private set; }
-        public AddressModel NewAddress { get; private set; }
+        public AddressModel NewAddress { get; set; }
         public IReadOnlyCollection<StateProvinceModel> AvailableStates { get; private set; }
         public string SelectedAddressType { get; set; }
         public AddressModel SelectedAddress { get; set; }
@@ -34,6 +34,11 @@ namespace KnockoutWebForms.ViewModels
                 new StateProvinceModel{Abbreviation = "IN", Country = "US", FullName="Indiana"}
             };
             SelectedAddressType = "existing";
+        }
+
+        public void Save()
+        {
+            //TODO: save, if valid
         }
     }
 }
